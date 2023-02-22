@@ -3,13 +3,15 @@ class TodolistsController < ApplicationController
       # Viewへ渡すためのインスタンス変数に空のモデルオブジェクトを生成する。
       @list = List.new
   end
-  # ---- ここからコードを書きましょう ---- #
   def create
-    # １. データを新規登録するためのインスタンス作成
-    list = List.new(list_params)
-    # ２. データをデータベースに保存するためのsaveメソッド実行
-    list.save
-    redirect_to todolist_path(list.id)
+    @list = List.new(list_params)
+    if @list.save
+      # flashというハッシュに :notice をいうキーで '投稿が完了しました！' という文字列の値を保存
+      flash[:notice] = '投稿が完了しました！'
+      redirect_to todolist_path(@list.id)
+    else
+      render :new
+    end
   end
 
   def index
@@ -25,14 +27,21 @@ class TodolistsController < ApplicationController
   end
   
   def update
+    @list = List.find(params[:id])
+    if @list.update(list_params)
+    redirect_to todolist_path(@list.id)
+    else
+      render :edit
+    end
+  end
 
+  def destroy
     # ---- ここからコードを書きましょう ---- #
-    list = List.find(params[:id])
-    list.update(list_params)
-    redirect_to todolist_path(list.id)
+    list = List.find(params[:id])  # データ（レコード）を1件取得
+    list.destroy  # データ（レコード）を削除
+    redirect_to todolists_path  # 投稿一覧画面へリダイレクト
     # ---- ここまでのあいだにコードを書きましょう ---- #
-
-  end  
+  end
 
   private
   # ストロングパラメータ
